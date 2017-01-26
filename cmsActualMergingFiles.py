@@ -43,7 +43,7 @@ def elasticMonitor(mergeMonitorData, runnumber, mergeType, esServerUrl, esIndexN
          #attempt to record the merge, 1s timeout!
          monitorResponse=requests.post(esServerUrl+'/'+esIndexName+'/'+documentType+'/'+documentId,data=json.dumps(mergeMonitorDict),timeout=1)
          if(float(debug) >= 10): log.info("Merger monitor produced response: {0}".format(monitorResponse.text))
-         if monitorResponse.status_code!=200:
+         if monitorResponse.status_code not in [200,201]:
              log.error("elasticsearch replied with error code {0} and response: {1}".format(monitorResponse.status_code,monitorResponse.text))
          break
       except (requests.exceptions.ConnectionError,requests.exceptions.Timeout) as e:
