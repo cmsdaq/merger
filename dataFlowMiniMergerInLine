@@ -66,8 +66,6 @@ def get_params():
 
     return in_path, eol_path, out_path, sm_path, dqm_path, doCheckSum_option, additional_label, merge_type, stream_type, delete_files, merge_option, es_server_url, es_index_name, number_of_shards, number_of_replicas, debug_level
 
-
-
 def DataFlowMerger():
 
   [inPath, eolPath, outPath, smPath, dqmPath, doCheckSumOption, adLabel, mType, sType, delOrigFiles, mergeOption, esServerUrl, esIndexName, numberOfShards, numberOfReplicas, debugLevel] = get_params()
