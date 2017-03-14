@@ -17,9 +17,9 @@ def doMakeFolders(theOutputMergedFolderJSNS, theOutputSMMergedFolderJSNS, theOut
           msg = "sudo lfs setstripe -c 1 -S 1m {0}".format(theOutputMergedFolderJSNS)
           os.system(msg)
       except Exception, e:
-          log.warning(
-          "Directory {0} has just been created by someone else...".format(
-          theOutputMergedFolderJSNS))
+          log.error(
+          "Create directory {0} failed: {1}".format(
+          theOutputMergedFolderJSNS,e))
 
    if not os.path.exists(theOutputSMMergedFolderJSNS):
       try:
@@ -27,9 +27,9 @@ def doMakeFolders(theOutputMergedFolderJSNS, theOutputSMMergedFolderJSNS, theOut
           msg = "sudo lfs setstripe -c 1 -S 1m {0}".format(theOutputSMMergedFolderJSNS)
           os.system(msg)
       except Exception, e:
-          log.warning(
-          "Directory {0} has just been created by someone else...".format(
-          theOutputSMMergedFolderJSNS))
+          log.error(
+          "Create directory {0} failed: {1}".format(
+          theOutputSMMergedFolderJSNS,e))
 
    if not os.path.exists(theOutputDQMMergedFolderJSNS):
       try:
@@ -37,54 +37,54 @@ def doMakeFolders(theOutputMergedFolderJSNS, theOutputSMMergedFolderJSNS, theOut
           msg = "sudo lfs setstripe -c 1 -S 1m {0}".format(theOutputDQMMergedFolderJSNS)
           os.system(msg)
       except Exception, e:
-          log.warning(
-          "Directory {0} has just been created by someone else...".format(
-          theOutputDQMMergedFolderJSNS))
+          log.error(
+          "Create directory {0} failed: {1}".format(
+          theOutputDQMMergedFolderJSNS,e))
 
    if not os.path.exists(theOutputMergedFolderDATA):
       try:
           os.makedirs(theOutputMergedFolderDATA)
       except Exception, e:
-          log.warning(
-          "Directory {0} has just been created by someone else...".format(
-          theOutputMergedFolderDATA))
+          log.error(
+          "Create directory {0} failed: {1}".format(
+          theOutputMergedFolderDATA,e))
 
    if not os.path.exists(theOutputSMMergedFolderDATA):
       try:
           os.makedirs(theOutputSMMergedFolderDATA)
       except Exception, e:
-          log.warning(
-          "Directory {0} has just been created by someone else...".format(
-          theOutputSMMergedFolderDATA))
+          log.error(
+          "Create directory {0} failed: {1}".format(
+          theOutputSMMergedFolderDATA,e))
 
    if not os.path.exists(theOutputDQMMergedFolderDATA):
       try:
           os.makedirs(theOutputDQMMergedFolderDATA)
       except Exception, e:
-          log.warning(
-          "Directory {0} has just been created by someone else...".format(
-          theOutputDQMMergedFolderDATA))
+          log.error(
+          "Create directory {0} failed: {1}".format(
+          theOutputDQMMergedFolderDATA,e))
 
    if not os.path.exists(theOutputBadFolder):
       try:
           os.makedirs(theOutputBadFolder)
       except Exception, e:
-          log.warning(
-          "Directory {0} has just been created by someone else...".format(
-          theOutputBadFolder))
+          log.error(
+          "Create directory {0} failed: {1}".format(
+          theOutputBadFolder,e))
 
    if not os.path.exists(theOutputSMBadFolder):
       try:
           os.makedirs(theOutputSMBadFolder)
       except Exception, e:
-          log.warning(
-          "Directory {0} has just been created by someone else...".format(
-          theOutputSMBadFolder))
+          log.error(
+          "Create directory {0} failed: {1}".format(
+          theOutputSMBadFolder,e))
 
    if not os.path.exists(theOutputSMRecoveryFolder):
       try:
           os.makedirs(theOutputSMRecoveryFolder)
       except Exception, e:
-          log.warning(
-          "Directory {0} has just been created by someone else...".format(
-          theOutputSMRecoveryFolder))
+          log.error(
+          "Create directory {0} failed: {1}".format(
+          theOutputSMRecoveryFolder,e))
