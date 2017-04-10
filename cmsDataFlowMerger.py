@@ -568,7 +568,6 @@ def doTheMerging(paths_to_watch, path_eol, mergeType, streamType, debug, outputM
 
 
           def loop_func_ini(nStr):
-	    loop_func_makedirs(nStr)
             after = dict()
             try:
               after_temp = dict ([(f, None) for f in glob.glob(os.path.join(listFolders[nStr], '*.ini'))])
@@ -580,6 +579,10 @@ def doTheMerging(paths_to_watch, path_eol, mergeType, streamType, debug, outputM
 
             afterStringNoSortedINI = [f for f in after if ( (f.endswith(".ini")) and ("TEMP" not in f) and ("EoR" not in f) and ("index" not in f)  and ("EoLS" not in f) and ("BoLS" not in f))]
             afterStringINI = sorted(afterStringNoSortedINI, reverse=False)
+
+            # create for folders only if there is anything to either merge or copy
+            if(len(afterStringINI) > 0):
+               loop_func_makedirs(nStr)
 
 	    # loop over ini files, needs to be done first of all
 	    for i in range(0, len(afterStringINI)):
