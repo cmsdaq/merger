@@ -4,6 +4,7 @@ import shutil
 import json
 import glob
 import cmsDataFlowMerger
+from datetime import datetime, timedelta, date
 
 from Logging import getLogger
 log = getLogger()
@@ -53,7 +54,18 @@ def cleanUpRun(debug, EoRFileName, inputDataFolder, afterString, path_eol,
          log.info("PROBLEM eventsEoLS != eventsInputBU: {0} vs. {1}".format(
                   eventsEoLS[0],eventsInputBU))
 
-      if(numberBoLSFiles == 0 and eventsInputBU == eventsInputFU):
+      # This is done to make sure there won't be files created after we start deleting the folder
+      deltaTimeHLTFolderCreation = timedelta(minutes=10)
+      hltFolder = os.path.join(EoLSFolder,"hlt")
+      if(os.path.exists(hltFolder)):
+          m_time_stamp = int(os.stat(hltFolder).st_ctime)
+          m_utc_date_time = datetime.utcfromtimestamp(m_time_stamp)
+          deltaTimeHLTFolderCreation = datetime.utcnow() - m_utc_date_time
+      else:
+         log.error("PROBLEM HLT folder does not exist {0}".format(hltFolder))
+
+      if(numberBoLSFiles == 0 and eventsInputBU == eventsInputFU and
+        (deltaTimeHLTFolderCreation > timedelta(minutes=5) or lastLumiBU > 3)):
          # This is needed to cleanUp the macroMerger later
          EoRFileNameMiniOutput       = (
             outputSMMergedFolder + "/" + theRunNumber + "_ls0000_MiniEoR_" + 
@@ -77,7 +89,6 @@ def cleanUpRun(debug, EoRFileName, inputDataFolder, afterString, path_eol,
 
          shutil.move(EoRFileNameMiniOutput, EoRFileNameMiniOutputStable)
 
-         EoLSFolder = os.path.join(path_eol, theRunNumber)
          log.info("Run folder deletion is triggered!: {0} and {1}".format(
                  inputDataFolder,EoLSFolder))
          time.sleep(10)
@@ -99,6 +110,8 @@ def cleanUpRun(debug, EoRFileName, inputDataFolder, afterString, path_eol,
          return True
 
       else:
+          if(numberBoLSFiles == 0 and eventsInputBU == eventsInputFU):
+              log.info("Open run({0}) all DONE, lastLumiBU = {1}, deltaCreation: {2}".format(EoLSFolder,lastLumiBU,deltaTimeHLTFolderCreation))
           return False
 
    else:
@@ -149,7 +162,7 @@ def doSumEoLS(inputDataFolder, eventsEoLS, eventsEoLS_noLastLS):
                try:
                   lastLumiBU = int(fileNameString[1].replace("ls",""))
                except Exception,e:
-                  log.error("lastLumiBU assingment failed {0} - {1}".format(
+                  log.error("lastLumiBU assignment failed {0} - {1}".format(
                            fileNameString[1],e))
 
             eventsEoLS[0] += int(settingsEoLS['data'][0])

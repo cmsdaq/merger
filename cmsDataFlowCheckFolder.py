@@ -163,6 +163,8 @@ def doTheChecking(paths_to_watch, path_eol, mergeType, debug):
    		    log.info("Events number does not match: EoL says {0}, we have in the files: {1} + {2} = {3}".format(eventsTotalInput, eventsIDict[key][0], eventsLDict[key][0], eventsIDict[key][0]+eventsLDict[key][0]))
 
 
+   afterEOR = dict ([(f, None) for f in glob.glob(os.path.join(inputDataFolder, '*.jsn'))])
+   afterStringEOR = [f for f in afterEOR if ("EoR" in f)]
    EoRFileName = path_eol + "/" + theRunNumber + "/" + theRunNumber + "_ls0000_EoR.jsn"
    if(os.path.exists(EoRFileName) and os.path.getsize(EoRFileName) > 0):
       settingsEoR = cmsDataFlowMerger.readJsonFile(EoRFileName, debug)
@@ -172,14 +174,14 @@ def doTheChecking(paths_to_watch, path_eol, mergeType, debug):
    	 eventsInputBU = int(settingsEoR['data'][0])
 
    	 eventsInputFU = 0
-   	 for nb in range(0, len(afterString)):
-   	    if not afterString[nb].endswith(".jsn"): continue
-   	    if "index" in afterString[nb]: continue
-   	    if afterString[nb].endswith("recv"): continue
-   	    if "EoLS" in afterString[nb]: continue
-   	    if "BoLS" in afterString[nb]: continue
-   	    if not "EoR" in afterString[nb]: continue
-   	    inputEoRFUJsonFile = os.path.join(inputDataFolder, afterString[nb])
+   	 for nb in range(0, len(afterStringEOR)):
+   	    if not afterStringEOR[nb].endswith(".jsn"): continue
+   	    if "index" in afterStringEOR[nb]: continue
+   	    if afterStringEOR[nb].endswith("recv"): continue
+   	    if "EoLS" in afterStringEOR[nb]: continue
+   	    if "BoLS" in afterStringEOR[nb]: continue
+   	    if not "EoR" in afterStringEOR[nb]: continue
+   	    inputEoRFUJsonFile = os.path.join(inputDataFolder, afterStringEOR[nb])
    	    settingsLS = cmsDataFlowMerger.readJsonFile(inputEoRFUJsonFile, debug)
 
    	    if("bad" in settingsLS): continue

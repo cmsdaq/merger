@@ -1001,6 +1001,9 @@ def doTheMerging(paths_to_watch, path_eol, mergeType, streamType, debug, outputM
 	     if (optionMerging != "optionA" and ("DQM" not in fileNameString[2] or theMergingThreshold == 1) and (specialStreams == False) and eventsIDict[key][0] != 0):
                 theOutputEndName = "StorageManager"
 
+	     if (optionMerging != "optionA" and ("DQM" not in fileNameString[2] or theMergingThreshold == 1) and (specialStreams == False) and eventsIDict[key][0] == 0 and mergeType == "macro"):
+                theOutputEndName = "StorageManager"
+
              extensionName = ".dat"
              if fileNameString[2] == "streamError":
                 extensionName = ".raw"

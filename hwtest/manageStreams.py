@@ -232,6 +232,10 @@ def create_ls_files(options, params, ls, numberOfFilesPerLS, nInput):
     if (options.totalBUs != None):
        theTotalBUs = options.totalBUs
 
+    msgHLT = "%sunmergedMON/run%d/hlt" % (path_to_make,RUNNumber)
+    if(not os.path.exists(msgHLT)):
+       os.mkdir(msgHLT)
+
     fileLSNameFullPath = "%sunmergedMON/run%d/run%d_ls%d_EoLS.jsn" % (path_to_make,RUNNumber,RUNNumber,ls)
     try:
        with open(fileLSNameFullPath, 'w') as theFileLSName:
