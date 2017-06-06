@@ -134,7 +134,7 @@ def mergeFilesA(inpSubFolder, outSubFolder, outputMergedFolder, outputDQMMergedF
         	  time.sleep(30)
 
             if(n_retries == max_retries):
-               log.error("Could not write file {0}!: {0}".format(outMergedFileFullPath))
+               log.error("Could not write file {0}!".format(outMergedFileFullPath))
                msg = "Could not write file {0}!: %s" % (outMergedFileFullPath)
                raise RuntimeError, msg
 
@@ -168,7 +168,7 @@ def mergeFilesA(inpSubFolder, outSubFolder, outputMergedFolder, outputDQMMergedF
         	  time.sleep(30)
 
             if(n_retries == max_retries):
-               log.error("Could not write file {0}!: {0}".format(outMergedFileFullPath))
+               log.error("Could not write file {0}!".format(outMergedFileFullPath))
                msg = "Could not write file {0}!: %s" % (outMergedFileFullPath)
                raise RuntimeError, msg
 
@@ -400,7 +400,7 @@ def mergeFilesC(inpSubFolder, outSubFolder, outputMergedFolder, outputSMMergedFo
                   time.sleep(30)
 
             if(n_retries == max_retries):
-               log.error("Could not write file {0}!: {0}".format(outMergedFileFullPath))
+               log.error("Could not write file {0}!".format(outMergedFileFullPath))
                msg = "Could not write file {0}!: %s" % (outMergedFileFullPath)
                raise RuntimeError, msg
 
@@ -500,7 +500,7 @@ def mergeFilesC(inpSubFolder, outSubFolder, outputMergedFolder, outputSMMergedFo
                time.sleep(30)
 
          if(n_retries == max_retries):
-            log.error("Could not write file {0}!: {0}".format(outMergedFileFullPath))
+            log.error("Could not write file {0}!".format(outMergedFileFullPath))
             msg = "Could not write file {0}!: %s" % (outMergedFileFullPath)
             raise RuntimeError, msg
 
@@ -523,7 +523,7 @@ def mergeFilesC(inpSubFolder, outSubFolder, outputMergedFolder, outputSMMergedFo
                time.sleep(30)
 
 	 if(n_retries == max_retries):
-            log.error("Could not write file {0}!: {0}".format(outMergedFileFullPath))
+            log.error("Could not write file {0}!".format(outMergedFileFullPath))
             msg = "Could not write file {0}!: %s" % (outMergedFileFullPath)
             raise RuntimeError, msg
 
