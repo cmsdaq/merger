@@ -19,6 +19,7 @@ import zlibextras
 import requests
 import threading
 import traceback
+from copy import deepcopy
 
 from Logging import getLogger
 log = getLogger()
@@ -1273,6 +1274,24 @@ def doTheMerging(paths_to_watch, path_eol, mergeType, streamType, debug, outputM
       totTime = (timeSpentListStreams+timeSpenthandleIniFiles+timeSpentListJsons+timeSpentGetJsons+timeSpentAnalyzeJsons+timeSpentCheckEoR)*1000
       if(float(debug) >= 1) and totTime>tooSlowTime*5:
         log.info("Main loop summary: ListStreams: {0:.2} FindINIFiles: {1:.1f} FindJsons: {2:.1f} ReadJsons: {3:.1f} AnalyzeJsons: {4:.1f} EoRChecks: {5:.1f} msecs. Time spent on last run: {6:.1f} Total: {7:.1f} msecs".format(timeSpentListStreams*1000,timeSpenthandleIniFiles*1000,timeSpentListJsons*1000,timeSpentGetJsons*1000,timeSpentAnalyzeJsons*1000,timeSpentCheckEoR*1000,timeLastRun*1000,totTime))
+
+      # remove left behind dictionaries, perform this operation every 1000 loops
+      if(mergeType == "macro" and nLoops%1000 == 1):
+          if(float(debug) >= 1): log.info("Cleaning eventsIDict")
+          listOfRunFolders = []
+          for nf in range(0, min(len(inputDataFolders),50)):
+              listOfRunFolders.append(os.path.basename(inputDataFolders[nf].rstrip('/')))
+
+          eventsProbeDict = deepcopy(eventsIDict)
+          for (a,b,c), value in eventsProbeDict.iteritems():
+              toDelete = True
+              for nf in range(0, len(listOfRunFolders)):
+                  if a == listOfRunFolders[nf]:
+                      toDelete = False
+	      if(toDelete == True):
+	          key = (a,b,c)
+		  del eventsIDict[key]
+		  if(float(debug) >= 1): log.info("Deleting {0}".format(key))
 
    if nWithPollMax > 0:
       thePool.close()
