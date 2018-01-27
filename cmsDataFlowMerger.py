@@ -1169,10 +1169,17 @@ def doTheMerging(paths_to_watch, path_eol, mergeType, streamType, debug, outputM
 	  if deltaT*1000>tooSlowTime:
 		  log.info("Time for listing runs: {0} msecs".format(deltaT*1000))
           timeSpentListStreams += deltaT
+
 	  #directory listing and reading json files (1st loop, serial)
           #loop_ini_params = []
-          for nStr in range(0, len(listFolders)):
-             loop_func_ini(nStr)
+          try:
+             for nStr in range(0, len(listFolders)):
+                loop_func_ini(nStr)
+          except Exception,e:
+             log.error("loop_func_ini failed {0}".format(e))
+             msg = "loop_func_ini badly failed"
+             raise RuntimeError, msg
+
           #for nStr in range(0, len(listFolders)):
           #   loop_ini_params.append(nStr)
           #if len(loop_ini_params):

@@ -34,6 +34,8 @@ def elasticMonitor(mergeMonitorData, runnumber, mergeType, esServerUrl, esIndexN
    mergeMonitorDict["host"]=host
    mergeMonitorDict["runNumber"]=int(runnumber)
    while True:
+      if connectionAttempts > 0:
+         log.info('connectionAttempt: {0}'.format(connectionAttempts))
       try:
          documentType=mergeType+'merge'
          if(float(debug) >= 10):
@@ -44,13 +46,21 @@ def elasticMonitor(mergeMonitorData, runnumber, mergeType, esServerUrl, esIndexN
          monitorResponse=requests.post(esServerUrl+'/'+esIndexName+'/'+documentType+'/'+documentId,data=json.dumps(mergeMonitorDict),timeout=1)
          if(float(debug) >= 10): log.info("Merger monitor produced response: {0}".format(monitorResponse.text))
          if monitorResponse.status_code not in [200,201]:
-             log.error("elasticsearch replied with error code {0} and response: {1}".format(monitorResponse.status_code,monitorResponse.text))
+            log.error("elasticsearch replied with error code {0} and response: {1}".format(monitorResponse.status_code,monitorResponse.text))
+            connectionAttempts+=1
+            time.sleep(0.1)
+            if connectionAttempts > maxConnectionAttempts:
+               log.error('connection replied error: elasticMonitor failed to record '+documentType+' after '+ str(maxConnectionAttempts)+' attempts')
+               break
+            else:
+               continue
          break
       except (requests.exceptions.ConnectionError,requests.exceptions.Timeout) as e:
-         log.error('elasticMonitor threw connection error: HTTP ' + monitorResponse.status_code)
-         log.error(monitorResponse.raise_for_status())
+         #log.error('elasticMonitor threw connection error: HTTP ' + monitorResponse.status_code)
+         #log.error(monitorResponse.raise_for_status())
+         log.exception(e)
          if connectionAttempts > maxConnectionAttempts:
-            log.error('connection error: elasticMonitor failed to record '+documentType+' after '+ str(maxConnectionAttempts)+'attempts')
+            log.error('connection error: elasticMonitor failed to record '+documentType+' after '+ str(maxConnectionAttempts)+' attempts')
             break
          else:
             connectionAttempts+=1
