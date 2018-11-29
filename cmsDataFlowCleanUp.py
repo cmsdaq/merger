@@ -92,22 +92,45 @@ def cleanUpRun(debug, EoRFileName, inputDataFolder, afterString, path_eol,
          log.info("Run folder deletion is triggered!: {0} and {1}".format(
                  inputDataFolder,EoLSFolder))
          time.sleep(10)
+	 ### DEBUG, CHECK FOLDERS TO BE DELETED
+         listFolders = sorted(glob.glob(os.path.join(inputDataFolder, 'stream*')));
+         after_eor = dict()
          try:
-            shutil.rmtree(inputDataFolder)
-         except Exception,e:
-            log.error("Failed removing {0} - {1}".format(inputDataFolder,e))
-         try:
-            if os.path.islink(EoLSFolder):
-               link_dir = os.readlink(EoLSFolder)
-               log.info("EoLS run dir is a symlink pointing to {0}".format(
-                       link_dir))
-               os.unlink(EoLSFolder)
-               EoLSFolder = link_dir
-            shutil.rmtree(EoLSFolder)
-         except Exception,e:
-            log.error("Failed removing {0} - {1}".format(EoLSFolder,e))
+            after_temp_eor = dict ([(f, None) for f in glob.glob(os.path.join(inputDataFolder, '*.jsn'))])
+            after_eor.update(after_temp_eor)
+            for nStr in range(0, len(listFolders)):
+               after_temp_eor = dict ([(f, None) for f in glob.glob(os.path.join(listFolders[nStr], '*.jsn'))])
+               after_eor.update(after_temp_eor)
+               after_temp_eor = dict ([(f, None) for f in glob.glob(os.path.join(listFolders[nStr], 'jsns', '*.jsn'))])
+               after_eor.update(after_temp_eor)
+         except Exception, e:
+            log.error("glob.glob operation failed: {0} - {1}".format(inputDataFolder,e))
+         afterStringNow = [f for f in after_eor]
+	 log.info("Checking folders in {0} before deleting them".format(inputDataFolder))
+	 log.info("What we had: {0}".format(afterString))
+	 log.info("What we have: {0}".format(afterStringNow))
+	 ###
+	 if(len(afterString) == len(afterStringNow)):
+            try:
+               shutil.rmtree(inputDataFolder)
+            except Exception,e:
+               log.error("Failed removing {0} - {1}".format(inputDataFolder,e))
+            try:
+               if os.path.islink(EoLSFolder):
+                  link_dir = os.readlink(EoLSFolder)
+                  log.info("EoLS run dir is a symlink pointing to {0}".format(
+                           link_dir))
+                  os.unlink(EoLSFolder)
+                  EoLSFolder = link_dir
+               shutil.rmtree(EoLSFolder)
+            except Exception,e:
+               log.error("Failed removing {0} - {1}".format(EoLSFolder,e))
 
-         return True
+            return True
+
+	 else:
+            log.info("Different content in run({0}) before and after revision".format(inputDataFolder))
+            return False
 
       else:
           if(numberBoLSFiles == 0 and eventsInputBU == eventsInputFU):

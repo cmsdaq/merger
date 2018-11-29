@@ -70,7 +70,7 @@ def elasticMonitor(mergeMonitorData, runnumber, mergeType, esServerUrl, esIndexN
 """
 merging option A: merging unmerged files to different files for different BUs
 """
-def mergeFilesA(inpSubFolder, outSubFolder, outputMergedFolder, outputDQMMergedFolder, doCheckSum, outMergedFile, outMergedJSON, inputDataFolder, infoEoLS, eventsO, files, checkSumFix, fileSizeFix, filesJSON, errorCode, transferDest, timeReadJsns, timeIni, mergeType, doRemoveFiles, outputEndName, esServerUrl, esIndexName, debug):
+def mergeFilesA(inpSubFolder, outSubFolder, outputMergedFolder, outputDQMMergedFolder, doCheckSum, outMergedFile, outMergedJSON, inputDataFolder, infoEoLS, eventsO, files, checkSumFix, fileSizeFix, filesJSON, errorCode, transferDest, timeReadJsns, timeIni, timeEndJsonOps, mergeType, doRemoveFiles, outputEndName, esServerUrl, esIndexName, debug):
  try:
    if(float(debug) >= 10): log.info("mergeFiles: {0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}".format(outputMergedFolder, outMergedFile, outMergedJSON, inputDataFolder, infoEoLS, eventsO, files, checkSumFix, fileSizeFix, filesJSON, errorCode))
    
@@ -304,18 +304,19 @@ def mergeFilesA(inpSubFolder, outSubFolder, outputMergedFolder, outputDQMMergedF
    	 inputFileToRemove = filesJSON[nfile]
          if (os.path.exists(inputFileToRemove) and (not os.path.isdir(inputFileToRemove))):
    	    os.remove(inputFileToRemove)
-      if mergeType == "mini":
-         try:
-            # Removing BoLS file, the last step
-            BoLSFileName = fileNameString[0] + "_" + fileNameString[1] + "_" + fileNameString[2] + "_BoLS.jsn"
-            BoLSFileNameFullPath = os.path.join(inputJsonFolder, BoLSFileName)
-            if os.path.exists(BoLSFileNameFullPath):
-	       os.remove(BoLSFileNameFullPath)
-         except Exception, e:
-            log.warning("Error deleting BoLS file {0}: {1}".format(BoLSFileNameFullPath,e))
+      # This is now done in the callback
+      #if mergeType == "mini":
+      #   try:
+      #      # Removing BoLS file, the last step
+      #      BoLSFileName = fileNameString[0] + "_" + fileNameString[1] + "_" + fileNameString[2] + "_BoLS.jsn"
+      #      BoLSFileNameFullPath = os.path.join(inputJsonFolder, BoLSFileName)
+      #      if os.path.exists(BoLSFileNameFullPath):
+      #         os.remove(BoLSFileNameFullPath)
+      #   except Exception, e:
+      #      log.warning("Error deleting BoLS file {0}: {1}".format(BoLSFileNameFullPath,e))
 
    # monitor the merger by inserting record into elastic search database:
-   if not (esServerUrl=='' or esIndexName==''):
+   if((not (esServerUrl=='' or esIndexName=='')) and checksum_status == True):
       ls=fileNameString[1][2:]
       stream=fileNameString[2][6:]
       runnumber=fileNameString[0][3:]
@@ -324,7 +325,7 @@ def mergeFilesA(inpSubFolder, outSubFolder, outputMergedFolder, outputDQMMergedF
       elasticMonitor(mergeMonitorData, runnumber, mergeType, esServerUrl, esIndexName, 5, debug)
 
    endMergingTime = time.time() 
-   if(float(debug) > 0): log.info("Time for ({0}): reading {1} jsns = {2:.3f} ; starting jsn operation: {3} ; total jsn operation: {4:.3f} ; actual merging total: {5:.3f} ; reading data: {6:.3f} ; writing data: {7:.3f}".format(outMergedJSON,len(filesJSON),timeReadJsns,time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(timeIni)),initMergingTime-timeIni,endMergingTime-initMergingTime,timeReadWrite[0],timeReadWrite[1]))
+   if(float(debug) > 0): log.info("Time for ({0}): reading {1} jsns = {2:.3f} ; starting jsn operation: {3} ; total jsn operation: {4:.3f} ; spawning waiting time: {5:.3f} ; actual merging total: {6:.3f} ; reading data: {7:.3f} ; writing data: {8:.3f}".format(outMergedJSON,len(filesJSON),timeReadJsns,time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(timeIni)),timeEndJsonOps-timeIni,initMergingTime-timeEndJsonOps,endMergingTime-initMergingTime,timeReadWrite[0],timeReadWrite[1]))
 
  except Exception,e:
    log.error("mergeFilesA failed {0} - {1}".format(outMergedJSON,e))
@@ -332,7 +333,7 @@ def mergeFilesA(inpSubFolder, outSubFolder, outputMergedFolder, outputDQMMergedF
 """
 merging option C: merging unmerged files to same file for different BUs without locking the merged file 
 """
-def mergeFilesC(inpSubFolder, outSubFolder, outputMergedFolder, outputSMMergedFolder, doCheckSum, outMergedFile, outMergedJSON, inputDataFolder, infoEoLS, eventsO, files, checkSum, fileSize, filesJSON, errorCode, transferDest, timeReadJsns, timeIni, mergeType, doRemoveFiles, outputEndName, esServerUrl, esIndexName, debug):
+def mergeFilesC(inpSubFolder, outSubFolder, outputMergedFolder, outputSMMergedFolder, doCheckSum, outMergedFile, outMergedJSON, inputDataFolder, infoEoLS, eventsO, files, checkSum, fileSize, filesJSON, errorCode, transferDest, timeReadJsns, timeIni, timeEndJsonOps, mergeType, doRemoveFiles, outputEndName, esServerUrl, esIndexName, debug):
  try:
    if(float(debug) >= 10): log.info("mergeFiles: {0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}, {10}".format(outputMergedFolder, outputSMMergedFolder, outMergedFile, outMergedJSON, inputDataFolder, infoEoLS, eventsO, files, checkSum, fileSize, filesJSON, errorCode))
 
@@ -355,6 +356,9 @@ def mergeFilesC(inpSubFolder, outSubFolder, outputMergedFolder, outputSMMergedFo
 
    lockName = fileNameString[0] + "_" + fileNameString[1] + "_" + fileNameString[2] + "_" + "StorageManager" + ".lock"
    lockNameFullPath = os.path.join(outputSMMergedFolder, outSubFolder, "data", "open", lockName)
+
+   # boolean for the ES monitoring information
+   isFileOK = True
 
    iniName = fileNameString[0] + "_ls0000_" + fileNameString[2] + "_" + outputEndName + ".ini"
    if mergeType == "macro":
@@ -572,6 +576,8 @@ def mergeFilesC(inpSubFolder, outSubFolder, outputMergedFolder, outputSMMergedFo
    	 lockNameFullPathStable = os.path.join(outputSMMergedFolder, outSubFolder, "bad", lockName)
          shutil.move(lockNameFullPath,lockNameFullPathStable)
 
+         isFileOK = False
+
       else:
    	 outMergedFileFullPathStable = os.path.join(outputSMMergedFolder, outSubFolder, "data", outMergedFile)
          if(fileNameString[2] != "streamError"):
@@ -609,6 +615,8 @@ def mergeFilesC(inpSubFolder, outSubFolder, outputMergedFolder, outputSMMergedFo
                lockNameFullPathStable = os.path.join(outputSMMergedFolder, outSubFolder, "bad", lockName)
                shutil.move(lockNameFullPath,lockNameFullPathStable)
 
+               isFileOK = False
+
 	 if(doRemoveFiles == "True" and checkSumFailed == False):
             if (os.path.exists(lockNameFullPath) and (not os.path.isdir(lockNameFullPath))):
                os.remove(lockNameFullPath)
@@ -616,6 +624,8 @@ def mergeFilesC(inpSubFolder, outSubFolder, outputMergedFolder, outputSMMergedFo
       if(checkSumFailed == False and fileSize > max_size):
          log.error("BIG PROBLEM, fileSize is too large!: {0} --> {1}".format(outMergedFileFullPath,fileSize))
          outMergedFileFullPathStable = os.path.join(outputSMMergedFolder, outSubFolder, "recovery", outMergedFile)
+
+         isFileOK = False
 
       if(float(debug) >= 10): log.info("outMergedFileFullPath/outMergedFileFullPathStable: {0}, {1}".format(outMergedFileFullPath, outMergedFileFullPathStable))
       try:
@@ -662,18 +672,19 @@ def mergeFilesC(inpSubFolder, outSubFolder, outputMergedFolder, outputSMMergedFo
    	 inputFileToRemove = filesJSON[nfile]
          if (os.path.exists(inputFileToRemove) and (not os.path.isdir(inputFileToRemove))):
    	    os.remove(inputFileToRemove)
-      if mergeType == "mini":
-         try:
-            # Removing BoLS file, the last step
-            BoLSFileName = fileNameString[0] + "_" + fileNameString[1] + "_" + fileNameString[2] + "_BoLS.jsn"
-            BoLSFileNameFullPath = os.path.join(inputJsonFolder, BoLSFileName)
-            if os.path.exists(BoLSFileNameFullPath):
-	       os.remove(BoLSFileNameFullPath)
-         except Exception, e:
-            log.warning("Error deleting BoLS file {0}: {1}".format(BoLSFileNameFullPath,e))
+      # This is now done in the callback
+      #if mergeType == "mini":
+      #   try:
+      #      # Removing BoLS file, the last step
+      #      BoLSFileName = fileNameString[0] + "_" + fileNameString[1] + "_" + fileNameString[2] + "_BoLS.jsn"
+      #      BoLSFileNameFullPath = os.path.join(inputJsonFolder, BoLSFileName)
+      #      if os.path.exists(BoLSFileNameFullPath):
+      #         os.remove(BoLSFileNameFullPath)
+      #   except Exception, e:
+      #      log.warning("Error deleting BoLS file {0}: {1}".format(BoLSFileNameFullPath,e))
 
    # monitor the merger by inserting record into elastic search database:
-   if not (esServerUrl=='' or esIndexName==''):
+   if((not (esServerUrl=='' or esIndexName=='')) and isFileOK == True):
       ls=fileNameString[1][2:]
       stream=fileNameString[2][6:]
       runnumber=fileNameString[0][3:]
@@ -682,7 +693,7 @@ def mergeFilesC(inpSubFolder, outSubFolder, outputMergedFolder, outputSMMergedFo
       elasticMonitor(mergeMonitorData, runnumber, mergeType, esServerUrl, esIndexName, 5, debug)
 
    endMergingTime = time.time() 
-   if(float(debug) > 0): log.info("Time for ({0}): reading {1} jsns = {2:.3f} ; starting jsn operation: {3} ; total jsn operation: {4:.3f} ; actual merging total: {5:.3f} ; reading data: {6:.3f} ; writing data: {7:.3f}".format(outMergedJSON,len(filesJSON),timeReadJsns,time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(timeIni)),initMergingTime-timeIni,endMergingTime-initMergingTime,timeReadWrite[0],timeReadWrite[1]))
+   if(float(debug) > 0): log.info("Time for ({0}): reading {1} jsns = {2:.3f} ; starting jsn operation: {3} ; total jsn operation: {4:.3f} ; spawning waiting time: {5:.3f} ; actual merging total: {6:.3f} ; reading data: {7:.3f} ; writing data: {8:.3f}".format(outMergedJSON,len(filesJSON),timeReadJsns,time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(timeIni)),timeEndJsonOps-timeIni,initMergingTime-timeEndJsonOps,endMergingTime-initMergingTime,timeReadWrite[0],timeReadWrite[1]))
 
  except Exception,e:
    log.error("mergeFilesC failed {0} - {1}".format(outMergedJSON,e))
@@ -704,9 +715,9 @@ def append_files(ifnames, ofile, theCheckSumBeingRead, debug, theTimeReadWrite, 
         elif (os.path.exists(ifname) and (not os.path.isdir(ifname))):
 	    theParamTimeOut[0] = True
 	    break
-        elif ((not os.path.isdir(ifname))):
-	    msg = "filename {0} does not exist".format(ifname)
-	    raise RuntimeError, msg
+        #elif ((not os.path.isdir(ifname))):
+        #    msg = "filename {0} does not exist".format(ifname)
+        #    raise RuntimeError, msg
 # append_files
 
 #______________________________________________________________________________

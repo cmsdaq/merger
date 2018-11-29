@@ -10,22 +10,25 @@ def doMove(theInput,theOutput):
         inputJsonFile = listJsonFiles[i]
         iniName = os.path.basename(inputJsonFile).split('_')
 
-        inputDataFile = inputJsonFile.replace(".jsn",".dat")
-        if not os.path.exists(inputDataFile):
-            inputDataFile = inputJsonFile.replace(".jsn",".pb")
+        if("MiniEoR" in iniName):
+            shutil.move(inputJsonFile,os.path.join(theOutput,os.path.basename(inputJsonFile)))
+        else:
+            inputDataFile = inputJsonFile.replace(".jsn",".dat")
             if not os.path.exists(inputDataFile):
-                inputDataFile = inputJsonFile.replace(".jsn",".jsndata")
-                if not os.path.exists(inputDataFile) and iniName[2] != "streamError":
-                   msg = "input file %s does not have associated data file" % inputJsonFile
-                   print msg
+        	inputDataFile = inputJsonFile.replace(".jsn",".pb")
+        	if not os.path.exists(inputDataFile):
+                    inputDataFile = inputJsonFile.replace(".jsn",".jsndata")
+                    if not os.path.exists(inputDataFile) and iniName[2] != "streamError":
+                       msg = "input file %s does not have associated data file" % inputJsonFile
+                       print msg
 
-        if not os.path.exists(os.path.join(theOutput,iniName[2],"jsns")):
-	  os.makedirs(os.path.join(theOutput,iniName[2],"jsns"))
-	  os.makedirs(os.path.join(theOutput,iniName[2],"data"))
+            if not os.path.exists(os.path.join(theOutput,iniName[2],"jsns")):
+		os.makedirs(os.path.join(theOutput,iniName[2],"data"))
+		os.makedirs(os.path.join(theOutput,iniName[2],"jsns"))
 
-        shutil.move(inputJsonFile,os.path.join(theOutput,iniName[2],"jsns",os.path.basename(inputJsonFile)))
-        if os.path.exists(inputDataFile):
-            shutil.move(inputDataFile,os.path.join(theOutput,iniName[2],"data",os.path.basename(inputDataFile)))
+            if os.path.exists(inputDataFile):
+        	shutil.move(inputDataFile,os.path.join(theOutput,iniName[2],"data",os.path.basename(inputDataFile)))
+        	shutil.move(inputJsonFile,os.path.join(theOutput,iniName[2],"jsns",os.path.basename(inputJsonFile)))
 
 """
 Main
